@@ -113,6 +113,11 @@ docker-compose down
 
 docker-compose exec app python manage.py csu
 ```
+- Запустить тесты:
+```bash
+
+docker-compose exec app python manage.py test
+```
 
 ### 4. Полезные ссылки
 

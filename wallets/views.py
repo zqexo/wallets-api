@@ -1,5 +1,6 @@
 from rest_framework import generics, status
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.exceptions import (NotFound, PermissionDenied,
+                                       ValidationError)
 from rest_framework.response import Response
 
 from wallets.models import Wallet
@@ -49,13 +50,15 @@ class WalletOperationView(generics.GenericAPIView):
 
 class WalletDeleteView(generics.DestroyAPIView):
     queryset = Wallet.objects.all()
-    serializer_class = WalletSerializer
+    lookup_field = "uuid"
 
     def delete(self, request, *args, **kwargs):
         if request.user.is_superuser or request.user.is_staff:
             try:
                 wallet = self.get_object()
-                wallet.delete()
+                self.perform_destroy(wallet)
                 return Response(status=status.HTTP_204_NO_CONTENT)
             except Wallet.DoesNotExist:
                 raise NotFound(detail="Кошелек не найден")
+        else:
+            raise PermissionDenied(detail="Нет прав на удаление")
